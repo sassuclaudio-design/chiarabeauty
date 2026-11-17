@@ -18,12 +18,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Scompatta il sito
+      - name: Prepara il sito (zip + file nella radice del repo)
         run: |
           mkdir -p _site
           if [ -f chiarabeauty-sito.zip ]; then unzip -o chiarabeauty-sito.zip -d _site; fi
-          for f in index.html privacy.html condizioni-vendita.html manifest.webmanifest CNAME; do [ -f "$f" ] && cp "$f" _site/ || true; done
-          [ -d img ] && cp -r img _site/ || true
+          rsync -a --exclude '.git' --exclude '.github' --exclude '_site' --exclude '*.zip' ./ _site/
+      - name: Usa config.js per prezzi e contenuti
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path('_site/index.html'); s = p.read_text(encoding='utf-8')
+          start = '/* =====================================================================\n   CONFIGURAZIONE'
+          end = '/* ===================================================================== */'
+          if start in s and pathlib.Path('_site/config.js').exists():
+              a = s.index(start); b = s.index(end, a) + len(end)
+              s = s[:a] + s[b:]
+              s = s.replace('<script>\n', '<script src="config.js"></script>\n<script>\n', 1) if '<script src="config.js">' not in s else s
+              s = s.replace('"€ " + n;', '"€ " + (n === null || n === undefined || n === "" ? "XX" : n);')
+              p.write_text(s, encoding='utf-8')
+              print('index.html collegato a config.js')
+          PY
           ls -R _site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
