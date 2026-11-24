@@ -2,10 +2,18 @@
    CONFIGURAZIONE — modifica SOLO questa parte per aggiornare il sito
    ===================================================================== */
 window.CONFIG = {
+  // TESTI DELLA HOME — slogan (prima riga + seconda riga in corsivo), payoff e frase introduttiva
+  testi: {
+    slogan: "La bellezza,",
+    sloganCorsivo: "nei dettagli.",
+    payoff: "Nail Design · Lash & Brow Beauty",
+    intro: "Un'esperienza di bellezza pensata per valorizzare la tua unicità, attraverso precisione, professionalità e attenzione ad ogni dettaglio."
+  },
+
   citta: "Porto Torres (SS) · Sardegna",
   indirizzo: "",                 // es. "Via Esempio 12, 07046 Porto Torres (SS)" — se vuoto non compare
   whatsapp: "",                  // solo cifre con prefisso, es. "393401234567"
-  email: "chiaranails18@gmail.com",
+  email: "info@chiarabeauty.pro",
   instagram: "chiarabeauty18",
   tiktok: "chiarabeauty1802",
   ragioneSociale: "Chiara Beauty di Maria Chiara Fattacciu",
@@ -61,3 +69,16 @@ window.CONFIG = {
   ]
 };
 /* ===================================================================== */
+
+/* Applica i testi della home (slogan, payoff, introduzione) — non modificare */
+document.addEventListener("DOMContentLoaded", function () {
+  var T = window.CONFIG.testi; if (!T) return;
+  var eb = document.querySelector(".hero .eyebrow"), h1 = document.querySelector(".hero h1"), p = document.querySelector(".hero h1 + p");
+  if (eb && T.payoff) { eb.removeAttribute("data-city"); eb.textContent = T.payoff; }
+  if (h1 && T.slogan) { h1.textContent = T.slogan; var s = document.createElement("span"); s.className = "script"; s.textContent = T.sloganCorsivo || ""; h1.appendChild(s); }
+  if (p && T.intro) p.textContent = T.intro;
+  document.title = "Chiara Beauty · " + T.slogan.replace(/,$/, "") + ", " + (T.sloganCorsivo || "").replace(/\.$/, "") + " · Porto Torres";
+  var st = document.createElement("style");
+  st.textContent = "@media(max-width:900px){.hero .eyebrow{letter-spacing:.2em;font-size:.68rem}.hero .eyebrow::before{width:18px}}";
+  document.head.appendChild(st);
+});
